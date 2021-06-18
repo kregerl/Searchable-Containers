@@ -48,7 +48,6 @@ public class HandledScreenMixin extends Screen {
         // whether or not this is the creative screen.
         var isCreativeScreen = (Screen) this instanceof CreativeInventoryScreen;
         if (!isCreativeScreen) {
-            System.out.println(SmartTextField.currentText);
             this.textField = new SmartTextField(mc.textRenderer, ((HandledScreenAccessor) this).getContainerX() + (BACKGROUND_WIDTH / 2) - (SmartTextField.FIELD_WIDTH / 2),
                     ((HandledScreenAccessor) this).getContainerY() - SmartTextField.FIELD_HEIGHT - PADDING,
                     new LiteralText(SmartTextField.currentText));
