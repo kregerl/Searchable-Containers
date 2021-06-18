@@ -1,5 +1,6 @@
 package com.loucaskreger.searchablecontainers.mixin;
 
+import com.loucaskreger.searchablecontainers.SearchableContainers;
 import com.loucaskreger.searchablecontainers.config.Config;
 import com.loucaskreger.searchablecontainers.widget.SmartTextField;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -81,6 +82,11 @@ public class HandledScreenMixin extends Screen {
         if (this.textField != null) {
             if (keyCode == GLFW_KEY_E && this.textField.isFocused()) {
                 ci.cancel();
+            }
+
+            if (keyCode == SearchableContainers.HIDE_KEY.getDefaultKey().getCode()) {
+                SmartTextField.isHidden = !SmartTextField.isHidden;
+                this.textField.setVisible(SmartTextField.isHidden);
             }
         }
     }
