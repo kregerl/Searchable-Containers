@@ -33,9 +33,10 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_E;
 public class HandledScreenMixin extends Screen {
 
     private MinecraftClient mc = MinecraftClient.getInstance();
-    private static final int BACKGROUND_WIDTH = 176;
     private static final int PADDING = 3;
+    private static final int COLOR = 0x90000000;
     private SmartTextField textField;
+    private HandledScreenAccessor accessor;
 
     protected HandledScreenMixin(Text title) {
         super(title);
@@ -47,10 +48,11 @@ public class HandledScreenMixin extends Screen {
     private void onInit(CallbackInfo ci) {
         // whether or not this is the creative screen.
         var isCreativeScreen = (Screen) this instanceof CreativeInventoryScreen;
+        this.accessor = ((HandledScreenAccessor) this);
+        var x = this.accessor.getContainerX() + (this.accessor.getBackgroundWidth() / 2) - (SmartTextField.FIELD_WIDTH / 2);
+        var y = this.accessor.getContainerY() - SmartTextField.FIELD_HEIGHT - PADDING;
         if (!isCreativeScreen) {
-            this.textField = new SmartTextField(mc.textRenderer, ((HandledScreenAccessor) this).getContainerX() + (BACKGROUND_WIDTH / 2) - (SmartTextField.FIELD_WIDTH / 2),
-                    ((HandledScreenAccessor) this).getContainerY() - SmartTextField.FIELD_HEIGHT - PADDING,
-                    new LiteralText(SmartTextField.currentText));
+            this.textField = new SmartTextField(mc.textRenderer, x, y, new LiteralText(SmartTextField.currentText));
             this.textField.setChangedListener(this::textFieldChanged);
             this.addDrawableChild(this.textField);
         }
@@ -61,11 +63,10 @@ public class HandledScreenMixin extends Screen {
         DefaultedList<Slot> slots = ((HandledScreen) (Screen) this).getScreenHandler().slots;
         for (Slot slot : slots) {
             if (this.textField != null && SmartTextField.currentText != "" && !this.stackMatches(this.textField.getText(), slot.getStack())) {
-                var x = slot.x + ((HandledScreenAccessor) this).getContainerX();
-                var y = slot.y + ((HandledScreenAccessor) this).getContainerY();
+                var x = slot.x + this.accessor.getContainerX();
+                var y = slot.y + this.accessor.getContainerY();
                 RenderSystem.disableDepthTest();
-                var color = 0x90000000;
-                DrawableHelper.fill(matrices, x, y, x + 16, y + 16, color);
+                DrawableHelper.fill(matrices, x, y, x + 16, y + 16, COLOR);
                 RenderSystem.enableDepthTest();
             }
         }
@@ -84,8 +85,8 @@ public class HandledScreenMixin extends Screen {
             }
 
             if (keyCode == SearchableContainers.HIDE_KEY.getDefaultKey().getCode()) {
-                SmartTextField.isHidden = !SmartTextField.isHidden;
-                this.textField.setVisible(SmartTextField.isHidden);
+                SmartTextField.isVisible = !SmartTextField.isVisible;
+                this.textField.setVisible(SmartTextField.isVisible);
             }
         }
     }

@@ -20,4 +20,9 @@ public interface HandledScreenAccessor {
      */
     @Accessor(value = "y")
     public int getContainerY();
+
+
+    @Accessor(value = "backgroundWidth")
+    public int getBackgroundWidth();
+
 }

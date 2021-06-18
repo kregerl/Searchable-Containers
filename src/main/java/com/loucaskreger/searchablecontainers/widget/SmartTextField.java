@@ -7,7 +7,7 @@ import net.minecraft.text.Text;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_2;
 
 public class SmartTextField extends TextFieldWidget {
-    public static boolean isHidden = false;
+    public static boolean isVisible = true;
     public static String currentText = "";
 
     public static final int FIELD_WIDTH = 100;
@@ -16,8 +16,8 @@ public class SmartTextField extends TextFieldWidget {
 
     public SmartTextField(TextRenderer textRenderer, int x, int y, Text text) {
         super(textRenderer, x, y, FIELD_WIDTH, FIELD_HEIGHT, text);
-        this.setText(SmartTextField.currentText);
-        this.setVisible(SmartTextField.isHidden);
+        this.setText(currentText);
+        this.setVisible(isVisible);
     }
 
 
