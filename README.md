@@ -5,4 +5,5 @@ While in a container, players can use the search bar to filter certain items.
 ![](https://i.imgur.com/g8hMt7i.png)
 Right clicking the search bar will clear it and select it for searching.  
 Searching by default, will only search the item's display name. Changing the config option "searchTooltips" to true, will also search the items tooltips.  
-The search bar can be hidden by pressing H while in a container. This can be changed in the options.
+The search bar can be hidden by pressing Ctrl + H while in a container. The key can be changed in options, but Ctrl will still need to be pressed.  
+The padding between the search bar, and the gui can be changed by editing "verticalPadding" in the config.  

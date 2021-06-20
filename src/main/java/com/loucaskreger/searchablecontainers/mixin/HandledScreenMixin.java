@@ -29,11 +29,12 @@ import java.util.Locale;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_E;
 
+
+@SuppressWarnings("unused")
 @Mixin(HandledScreen.class)
 public class HandledScreenMixin extends Screen {
 
-    private MinecraftClient mc = MinecraftClient.getInstance();
-    private static final int PADDING = 3;
+    private static final MinecraftClient mc = MinecraftClient.getInstance();
     private static final int COLOR = 0x90000000;
     private SmartTextField textField;
     private HandledScreenAccessor accessor;
@@ -47,10 +48,10 @@ public class HandledScreenMixin extends Screen {
     @Inject(at = @At(value = "TAIL"), method = "init()V", cancellable = true)
     private void onInit(CallbackInfo ci) {
         // whether or not this is the creative screen.
-        var isCreativeScreen = (Screen) this instanceof CreativeInventoryScreen;
         this.accessor = ((HandledScreenAccessor) this);
+        var isCreativeScreen = (Screen) this instanceof CreativeInventoryScreen;
         var x = this.accessor.getContainerX() + (this.accessor.getBackgroundWidth() / 2) - (SmartTextField.FIELD_WIDTH / 2);
-        var y = this.accessor.getContainerY() - SmartTextField.FIELD_HEIGHT - PADDING;
+        var y = this.accessor.getContainerY() - SmartTextField.FIELD_HEIGHT - Config.INSTANCE.verticalPadding;
         if (!isCreativeScreen) {
             this.textField = new SmartTextField(mc.textRenderer, x, y, new LiteralText(SmartTextField.currentText));
             this.textField.setChangedListener(this::textFieldChanged);
@@ -62,7 +63,7 @@ public class HandledScreenMixin extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         DefaultedList<Slot> slots = ((HandledScreen) (Screen) this).getScreenHandler().slots;
         for (Slot slot : slots) {
-            if (this.textField != null && SmartTextField.currentText != "" && !this.stackMatches(this.textField.getText(), slot.getStack())) {
+            if (this.textField != null && !SmartTextField.currentText.equals("") && !this.stackMatches(this.textField.getText(), slot.getStack())) {
                 var x = slot.x + this.accessor.getContainerX();
                 var y = slot.y + this.accessor.getContainerY();
                 RenderSystem.disableDepthTest();
@@ -84,7 +85,8 @@ public class HandledScreenMixin extends Screen {
                 ci.cancel();
             }
 
-            if (keyCode == SearchableContainers.HIDE_KEY.getDefaultKey().getCode()) {
+
+            if (keyCode == SearchableContainers.HIDE_KEY.getDefaultKey().getCode() && modifiers == 2 && !this.textField.isFocused()) {
                 SmartTextField.isVisible = !SmartTextField.isVisible;
                 this.textField.setVisible(SmartTextField.isVisible);
             }
