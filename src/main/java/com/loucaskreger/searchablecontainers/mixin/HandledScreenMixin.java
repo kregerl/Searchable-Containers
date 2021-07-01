@@ -2,18 +2,22 @@ package com.loucaskreger.searchablecontainers.mixin;
 
 import com.loucaskreger.searchablecontainers.SearchableContainers;
 import com.loucaskreger.searchablecontainers.config.Config;
+import com.loucaskreger.searchablecontainers.widget.ArrowButtonWidget;
 import com.loucaskreger.searchablecontainers.widget.SmartTextField;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
@@ -24,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -35,8 +40,18 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_E;
 public class HandledScreenMixin extends Screen {
 
     private static final MinecraftClient mc = MinecraftClient.getInstance();
+    private static final int BUTTON_PADDING = 5;
     private static final int COLOR = 0x90000000;
+    private static final int PLAYER_INVENTORY_INDEX_SIZE = 35;
     private SmartTextField textField;
+    private ArrowButtonWidget toInventoryButton;
+    private ButtonWidget.TooltipSupplier toInventoryTooltipSupplier = (button, matrices, mouseX, mouseY) -> {
+        this.renderOrderedTooltip(matrices, Arrays.asList(new LiteralText("Moves items from container").asOrderedText(), new LiteralText(" to the players inventory").asOrderedText()), mouseX, mouseY);
+    };
+    private ArrowButtonWidget toContainerButton;
+    private ButtonWidget.TooltipSupplier toContainerTooltipSupplier = (button, matrices, mouseX, mouseY) -> {
+        this.renderOrderedTooltip(matrices, Arrays.asList(new LiteralText("Moves items from the player's").asOrderedText(), new LiteralText("inventory to the open container").asOrderedText()), mouseX, mouseY);
+    };
     private HandledScreenAccessor accessor;
 
     protected HandledScreenMixin(Text title) {
@@ -50,12 +65,20 @@ public class HandledScreenMixin extends Screen {
         // whether or not this is the creative screen.
         this.accessor = ((HandledScreenAccessor) this);
         var isCreativeScreen = (Screen) this instanceof CreativeInventoryScreen;
+        var isInventoryScreen = (Screen) this instanceof AbstractInventoryScreen;
         var x = this.accessor.getContainerX() + (this.accessor.getBackgroundWidth() / 2) - (SmartTextField.FIELD_WIDTH / 2);
         var y = this.accessor.getContainerY() - SmartTextField.FIELD_HEIGHT - Config.INSTANCE.verticalPadding;
         if (!isCreativeScreen) {
             this.textField = new SmartTextField(mc.textRenderer, x, y, new LiteralText(SmartTextField.currentText));
             this.textField.setChangedListener(this::textFieldChanged);
             this.addDrawableChild(this.textField);
+        }
+        if (!isInventoryScreen) {
+            // int x, int y, int width, int height, Text message, ButtonWidget.PressAction onPress, ButtonWidget.TooltipSupplier tooltipSupplier
+            this.toInventoryButton = new ArrowButtonWidget(x + SmartTextField.FIELD_WIDTH + BUTTON_PADDING, y, this::toInventoryButtonPressed, ArrowButtonWidget.Orientation.DOWN, Config.INSTANCE.showButtonTooltips ? toInventoryTooltipSupplier : ButtonWidget.EMPTY);
+            this.toContainerButton = new ArrowButtonWidget(x + SmartTextField.FIELD_WIDTH + ((2 * BUTTON_PADDING) + ArrowButtonWidget.BUTTON_WIDTH), y, this::toContainerButtonPressed, ArrowButtonWidget.Orientation.UP, Config.INSTANCE.showButtonTooltips ? toContainerTooltipSupplier : ButtonWidget.EMPTY);
+            this.addDrawableChild(this.toInventoryButton);
+            this.addDrawableChild(this.toContainerButton);
         }
     }
 
@@ -78,13 +101,39 @@ public class HandledScreenMixin extends Screen {
         SmartTextField.currentText = text;
     }
 
+    private void toInventoryButtonPressed(ButtonWidget button) {
+        var interactionManager = mc.interactionManager;
+        var player = mc.player;
+        var slots = ((HandledScreen) (Screen) this).getScreenHandler().slots;
+        System.out.println(slots.size() - PLAYER_INVENTORY_INDEX_SIZE);
+        for (int i = 0; i < slots.size() - PLAYER_INVENTORY_INDEX_SIZE; i++) {
+            if (this.textField != null && !SmartTextField.currentText.equals("") && this.stackMatches(this.textField.getText(), slots.get(i).getStack())) {
+                interactionManager.clickSlot(((HandledScreen) (Screen) this).getScreenHandler().syncId, i, 0, SlotActionType.QUICK_MOVE, player);
+            }
+        }
+    }
+
+    private void toContainerButtonPressed(ButtonWidget button) {
+        var interactionManager = mc.interactionManager;
+        var player = mc.player;
+        var slots = ((HandledScreen) (Screen) this).getScreenHandler().slots;
+        System.out.println(slots.size());
+        for (int i = slots.size() - 1 - PLAYER_INVENTORY_INDEX_SIZE; i < slots.size(); i++) {
+            System.out.println(i + " : " + slots.get(i).getStack().toString());
+            if (this.textField != null && !SmartTextField.currentText.equals("") && this.stackMatches(this.textField.getText(), slots.get(i).getStack())) {
+                interactionManager.clickSlot(((HandledScreen) (Screen) this).getScreenHandler().syncId, i, 0, SlotActionType.QUICK_MOVE, player);
+            }
+        }
+
+    }
+
+
     @Inject(at = @At(value = "HEAD"), method = "keyPressed", cancellable = true)
     private void onKeyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> ci) {
         if (this.textField != null) {
             if (keyCode == GLFW_KEY_E && this.textField.isFocused()) {
                 ci.cancel();
             }
-
 
             if (keyCode == SearchableContainers.HIDE_KEY.getDefaultKey().getCode() && modifiers == 2 && !this.textField.isFocused()) {
                 SmartTextField.isVisible = !SmartTextField.isVisible;

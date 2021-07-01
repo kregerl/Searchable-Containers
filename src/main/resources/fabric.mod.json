@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "searchablecontainers",
-  "version": "1.0",
+  "version": "1.2",
 
   "name": "Searchable Containers",
   "description": "Searchable containers is small client side gui mod that adds a search bar just above the players open container.  ",

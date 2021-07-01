@@ -10,8 +10,8 @@ public class SmartTextField extends TextFieldWidget {
     public static boolean isVisible = true;
     public static String currentText = "";
 
-    public static final int FIELD_WIDTH = 100;
-    public static final int FIELD_HEIGHT = 10;
+    public static final int FIELD_WIDTH = 101;
+    public static final int FIELD_HEIGHT = 11;
 
 
     public SmartTextField(TextRenderer textRenderer, int x, int y, Text text) {
