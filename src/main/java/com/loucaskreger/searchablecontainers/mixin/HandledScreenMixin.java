@@ -105,7 +105,6 @@ public class HandledScreenMixin extends Screen {
         var interactionManager = mc.interactionManager;
         var player = mc.player;
         var slots = ((HandledScreen) (Screen) this).getScreenHandler().slots;
-        System.out.println(slots.size() - PLAYER_INVENTORY_INDEX_SIZE);
         for (int i = 0; i < slots.size() - PLAYER_INVENTORY_INDEX_SIZE; i++) {
             if (this.textField != null && !SmartTextField.currentText.equals("") && this.stackMatches(this.textField.getText(), slots.get(i).getStack())) {
                 interactionManager.clickSlot(((HandledScreen) (Screen) this).getScreenHandler().syncId, i, 0, SlotActionType.QUICK_MOVE, player);
@@ -117,9 +116,7 @@ public class HandledScreenMixin extends Screen {
         var interactionManager = mc.interactionManager;
         var player = mc.player;
         var slots = ((HandledScreen) (Screen) this).getScreenHandler().slots;
-        System.out.println(slots.size());
         for (int i = slots.size() - 1 - PLAYER_INVENTORY_INDEX_SIZE; i < slots.size(); i++) {
-            System.out.println(i + " : " + slots.get(i).getStack().toString());
             if (this.textField != null && !SmartTextField.currentText.equals("") && this.stackMatches(this.textField.getText(), slots.get(i).getStack())) {
                 interactionManager.clickSlot(((HandledScreen) (Screen) this).getScreenHandler().syncId, i, 0, SlotActionType.QUICK_MOVE, player);
             }

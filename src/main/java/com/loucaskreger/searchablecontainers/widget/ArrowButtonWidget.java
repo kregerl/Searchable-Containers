@@ -47,7 +47,7 @@ public class ArrowButtonWidget extends ButtonWidget {
         this.drawTexture(matrices, 0, 0, 0, BUTTON_HEIGHT * 2, ARROW_WIDTH, ARROW_HEIGHT);
         matrices.pop();
         if (this.isHovered()) {
-            this.renderToolTip(matrices, mouseX, mouseY);
+            this.renderTooltip(matrices, mouseX, mouseY);
         }
     }
 
