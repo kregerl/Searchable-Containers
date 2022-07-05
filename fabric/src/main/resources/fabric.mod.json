@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "searchablecontainers",
+  "version": "${version}",
+  "name": "Searchable Containers",
+  "description": "Searchable containers is small client side gui mod that adds a search bar just above the players open container.",
+  "authors": [
+    "AreUThreateningMe"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/searchable-containers",
+    "sources": "https://github.com/kregerl/Searchable-Containers"
+  },
+  "license": "MIT",
+  "icon": "assets/searchablecontainers/SearchableContainersLogo.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.loucaskreger.searchablecontainers.fabric.SearchableContainersFabric"
+    ]
+  },
+  "mixins": [
+    "searchablecontainers-common.mixins.json"
+  ],
+  "depends": {
+    "minecraft": ">=1.19"
+  }
+}
