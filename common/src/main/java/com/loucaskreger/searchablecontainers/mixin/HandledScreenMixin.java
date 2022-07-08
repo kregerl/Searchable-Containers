@@ -1,5 +1,6 @@
 package com.loucaskreger.searchablecontainers.mixin;
 
+import com.loucaskreger.searchablecontainers.SearchableContainers;
 import com.loucaskreger.searchablecontainers.config.Config;
 import com.loucaskreger.searchablecontainers.widget.ArrowButtonWidget;
 import com.loucaskreger.searchablecontainers.widget.SmartTextField;
@@ -30,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_E;
 
 @SuppressWarnings("unused")
 @Mixin(HandledScreen.class)
@@ -118,13 +117,17 @@ public class HandledScreenMixin extends Screen {
     @Inject(at = @At(value = "HEAD"), method = "keyPressed", cancellable = true)
     private void onKeyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> ci) {
         if (this.textField != null) {
-            if (keyCode == GLFW_KEY_E && this.textField.isFocused()) {
+            if (keyCode == GLFW.GLFW_KEY_E && this.textField.isFocused()) {
                 ci.cancel();
             }
 
-            if (keyCode == GLFW.GLFW_KEY_H && modifiers == 2 && !this.textField.isFocused()) {
+            if (keyCode == SearchableContainers.HIDE_KEY.getDefaultKey().getCode() && modifiers == 2 && !this.textField.isFocused()) {
                 SmartTextField.isVisible = !SmartTextField.isVisible;
                 this.textField.setVisible(SmartTextField.isVisible);
+            }
+
+            if (keyCode == SearchableContainers.FOCUS_KEY.getDefaultKey().getCode() && modifiers == 2) {
+                this.textField.setTextFieldFocused(true);
             }
         }
     }

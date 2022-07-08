@@ -1,6 +1,7 @@
 package com.loucaskreger.searchablecontainers.forge;
 
 import com.loucaskreger.searchablecontainers.SearchableContainers;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -17,5 +18,6 @@ public class SearchableContainersForge {
 
     private void clientSetup(final FMLClientSetupEvent event) {
         SearchableContainers.init();
+        KeyBindingHelperExpectPlatformImpl.keyLists.forEach(ClientRegistry::registerKeyBinding);
     }
 }
